@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.example.sampleapp.broadcastreceivers.PhoneNumberReceiver
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
 
 class MainActivity : FlutterActivity() {
 
@@ -30,10 +31,6 @@ class MainActivity : FlutterActivity() {
 
             requestPermissions(requests.toTypedArray(), 1)
         }
-
-        val intentFilter = IntentFilter("android.intent.action.PHONE_STATE")
-
-        registerReceiver(PhoneNumberReceiver(), intentFilter)
     }
 
     override fun onRequestPermissionsResult(
@@ -45,4 +42,18 @@ class MainActivity : FlutterActivity() {
 
         Log.d("RequestPermissionResult", grantResults[0].toString())
     }
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        Flutter.flutterEngine = flutterEngine
+        Log.d("configureFlutterEngine ", "platformChannel.toString()")
+
+        val phoneNumberReceiver = PhoneNumberReceiver()
+        val intentFilter = IntentFilter("android.intent.action.PHONE_STATE")
+        registerReceiver(phoneNumberReceiver, intentFilter)
+    }
+}
+
+object Flutter {
+    lateinit var flutterEngine: FlutterEngine
 }

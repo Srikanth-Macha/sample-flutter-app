@@ -10,8 +10,8 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.sampleapp.Flutter
 import com.example.sampleapp.R
-import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class PhoneNumberReceiver : BroadcastReceiver() {
@@ -22,18 +22,17 @@ class PhoneNumberReceiver : BroadcastReceiver() {
         val state = intent?.getStringExtra(TelephonyManager.EXTRA_STATE)
 
         Log.d("Intent state", state.toString())
-        Log.d("Ring state", TelephonyManager.EXTRA_STATE_RINGING)
 
         if (state == TelephonyManager.EXTRA_STATE_RINGING) {
             val incomingNumber = intent?.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
-            Log.d("IncomingCallReceiver", "Incoming call from: $incomingNumber")
+            Log.d("IncomingCallReceiver", "Incoming call from: $incomingNumber from Android")
 
             if (incomingNumber != null) {
                 // To make notification in android
                 makeNotification(context, incomingNumber)
 
                 // To send data to Flutter
-                sendToFlutterMain(context!!, incomingNumber)
+                sendToFlutterMain(incomingNumber)
             }
         }
     }
@@ -64,10 +63,16 @@ class PhoneNumberReceiver : BroadcastReceiver() {
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
 
-    private fun sendToFlutterMain(context: Context, incomingNumber: String) {
+    private fun sendToFlutterMain(incomingNumber: String) {
         val platformChannel =
-                MethodChannel(FlutterEngine(context.applicationContext).dartExecutor.binaryMessenger, "kotlin_channel")
+                MethodChannel(Flutter.flutterEngine.dartExecutor.binaryMessenger, "kotlin_channel")
 
-        platformChannel.invokeMethod("kotlin_method", incomingNumber)
+        Log.d("sendToFlutterMain ", platformChannel.toString())
+        platformChannel.setMethodCallHandler { call, result ->
+            Log.d("inSetMethodHandler: ", call.method)
+
+            if (call.method == "kotlin_method")
+                result.success(incomingNumber)
+        }
     }
 }
