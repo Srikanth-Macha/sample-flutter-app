@@ -1,27 +1,14 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    const platformChannel = MethodChannel("kotlin_channel");
-    platformChannel.setMethodCallHandler((call) async {
-      if (call.method == "kotlin_method") {
-        String incomingPhoneNumber = call.arguments as String;
-
-        log(incomingPhoneNumber); // Phone number will be received here
-      }
-    });
-
     return MaterialApp(
       title: "Sample App",
       theme: ThemeData(
@@ -36,13 +23,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Sample App'),
+      home: MyHomePage(title: 'Sample App'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  MyHomePage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -93,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // axis because Columns are vertical (the cross axis would be
             // horizontal).
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const <Widget>[
+            children: <Widget>[
               Text(
                 "Make sure all permissions are granted for the App",
                 style: TextStyle(
@@ -109,9 +96,38 @@ class _MyHomePageState extends State<MyHomePage> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
-              )
+              ),
+              ElevatedButton(
+                  onPressed: ()  {
+                    final platformChannel = MethodChannel("kotlin_channel");
+                    platformChannel.setMethodCallHandler((call) async {
+                      if (call.method == 'kotlin_method') {
+                        // Get the number from the method arguments
+                        final number = call.arguments;
+
+                        // Do something with the number, such as showing a dialog or updating the UI
+                        print('Incoming call from $number in Flutter');
+                      }
+                    });
+                  },
+                  child: Text("Push this"))
             ],
           ),
         ));
   }
+//
+// // Create a MethodChannel instance with the same channel name as in Kotlin
+// final channel = MethodChannel('com.example.call_receiver');
+//
+// // Set a MethodCallHandler to handle the incoming call method
+// channel.setMethodCallHandler((call) async {
+// // Check if the method name is "incomingCall"
+// if (call.method == 'incomingCall') {
+// // Get the number from the method arguments
+// final number = call.arguments;
+//
+// // Do something with the number, such as showing a dialog or updating the UI
+// print('Incoming call from $number');
+// }
+// });
 }

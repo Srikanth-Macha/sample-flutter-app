@@ -19,7 +19,6 @@ class PhoneNumberReceiver : BroadcastReceiver() {
         if (!intent?.action.equals("android.intent.action.PHONE_STATE")) {
             return
         }
-
         val state = intent?.getStringExtra(TelephonyManager.EXTRA_STATE)
 
         Log.d("Intent state", state.toString())
@@ -34,30 +33,30 @@ class PhoneNumberReceiver : BroadcastReceiver() {
                 makeNotification(context, incomingNumber)
 
                 // To send data to Flutter
-                sendToFlutterMain(context, incomingNumber)
+                sendToFlutterMain(context!!, incomingNumber)
             }
         }
     }
 
     private fun makeNotification(context: Context?, incomingNumber: String) {
         val notificationManager = ContextCompat.getSystemService(
-            context!!,
-            NotificationManager::class.java
+                context!!,
+                NotificationManager::class.java
         ) as NotificationManager
 
         val notificationId = 0
         val channelId = "channelId"
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(incomingNumber)
-            .setContentText("You received call from this number")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(incomingNumber)
+                .setContentText("You received call from this number")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_HIGH
+                    channelId,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_HIGH
             )
             notificationManager.createNotificationChannel(channel)
         }
@@ -65,9 +64,10 @@ class PhoneNumberReceiver : BroadcastReceiver() {
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
 
-    private fun sendToFlutterMain(context: Context?, incomingNumber: String) {
+    private fun sendToFlutterMain(context: Context, incomingNumber: String) {
         val platformChannel =
-            MethodChannel(FlutterEngine(context!!).dartExecutor.binaryMessenger, "kotlin_channel")
+                MethodChannel(FlutterEngine(context.applicationContext).dartExecutor.binaryMessenger, "kotlin_channel")
+
         platformChannel.invokeMethod("kotlin_method", incomingNumber)
     }
 }

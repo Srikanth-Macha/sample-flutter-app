@@ -12,18 +12,17 @@ import com.example.sampleapp.broadcastreceivers.PhoneNumberReceiver
 import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity : FlutterActivity() {
-    private val phoneNumberReceiver = PhoneNumberReceiver()
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE)
-            != PackageManager.PERMISSION_GRANTED
+                != PackageManager.PERMISSION_GRANTED
         ) {
             val requests = mutableListOf(
-                Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.READ_PHONE_STATE
+                    Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.READ_PHONE_STATE
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -33,13 +32,14 @@ class MainActivity : FlutterActivity() {
         }
 
         val intentFilter = IntentFilter("android.intent.action.PHONE_STATE")
-        registerReceiver(phoneNumberReceiver, intentFilter)
+
+        registerReceiver(PhoneNumberReceiver(), intentFilter)
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
